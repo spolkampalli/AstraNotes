@@ -1,9 +1,48 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>AstraNotes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
+<script>
+    let tags = [];
+
+    function addTag() {
+        const input = document.getElementById("tagInput");
+        const tag = input.value.trim();
+
+        if (tag && !tags.includes(tag)) {
+            tags.push(tag);
+            updateTags();
+        }
+
+        input.value = "";
+    }
+
+    function removeTag(tag) {
+        tags = tags.filter(t => t !== tag);
+        updateTags();
+    }
+
+    function updateTags() {
+        const container = document.getElementById("tagContainer");
+        const hidden = document.getElementById("tagsHidden");
+
+        container.innerHTML = "";
+
+        tags.forEach(tag => {
+            const tagElement = document.createElement("span");
+            tagElement.className = "tag-chip";
+            tagElement.innerHTML = `${tag} <button type="button" onclick="removeTag('${tag}')">x</button>`;
+            container.appendChild(tagElement);
+        });
+
+        hidden.value = tags.join(",");
+    }
+</script>
+
 <body>
 
     <h1>AstraNotes</h1>
@@ -13,27 +52,65 @@
 
     <form action="/add" method="POST">
         <input type="text" name="title" placeholder="Note title" required>
+
         <br><br>
+
         <textarea name="content" placeholder="Write your note here..." required></textarea>
+
         <br><br>
+
+        <div class="tag-entry">
+            <input type="text" id="tagInput" placeholder="Enter a tag">
+            <button type="button" onclick="addTag()">Add Tag</button>
+        </div>
+
+        <div id="tagContainer"></div>
+
+        <input type="hidden" name="tags" id="tagsHidden">
+
+        <br>
+
         <button type="submit">Save Note</button>
+    </form>
+
+    <h2>Search Notes</h2>
+
+    <form method="GET" action="/">
+        <input type="text" name="search" placeholder="Search notes..." value="{{ search_query }}">
+
+        <button type="submit">Search</button>
     </form>
 
     <h2>Saved Notes</h2>
 
     {% for note in notes %}
-        <div class="note">
-            <h3>{{ note["title"] }}</h3>
+    <div class="note">
+        <h3>{{ note["title"] }}</h3>
 
-            <p>{{ note["content"] }}</p>
+        {% if note["tags"] %}
+        <p><strong>Tags:</strong></p>
 
-            <a href="{{ url_for('delete_note', note_id=note['id']) }}">
-                Delete
-            </a>
-        </div>
+        {% if note["tags"] %}
+        {% for tag in note["tags"].split(",") %}
+        <span class="tag-chip">{{ tag }}</span>
+        {% endfor %}
+        {% else %}
+        <p>No tags</p>
+        {% endif %}
+        {% endif %}
+
+        <p>{{ note["content"] }}</p>
+
+        <a href="{{ url_for('edit_note', note_id=note['id']) }}">Edit</a>
+
+        |
+
+        <a href="{{ url_for('delete_note', note_id=note['id']) }}">Delete</a>
+    </div>
     {% else %}
-        <p>No notes yet.</p>
+    <p>No notes yet.</p>
     {% endfor %}
 
 </body>
+
 </html>
