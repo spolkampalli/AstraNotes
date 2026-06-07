@@ -7,10 +7,28 @@
 <body>
 
     <h1>AstraNotes</h1>
+    <p>Simple secure note-taking app for CSEN 296B.</p>
 
-    <p>CSEN 296B Final Project</p>
+    <h2>Create Note</h2>
 
-    <p>Your note-taking application is running.</p>
+    <form action="/add" method="POST">
+        <input type="text" name="title" placeholder="Note title" required>
+        <br><br>
+        <textarea name="content" placeholder="Write your note here..." required></textarea>
+        <br><br>
+        <button type="submit">Save Note</button>
+    </form>
+
+    <h2>Saved Notes</h2>
+
+    {% for note in notes %}
+        <div class="note">
+            <h3>{{ note["title"] }}</h3>
+            <p>{{ note["content"] }}</p>
+        </div>
+    {% else %}
+        <p>No notes yet.</p>
+    {% endfor %}
 
 </body>
 </html>
