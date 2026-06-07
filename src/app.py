@@ -1,9 +1,38 @@
+import os
 import sqlite3
+import markdown
 from flask import Flask, render_template, request, redirect
+from markupsafe import Markup
+from cryptography.fernet import Fernet
 
 app = Flask(__name__)
 
 DATABASE = "astranotes.db"
+KEY_FILE = "secret.key"
+
+
+def load_or_create_key():
+    if not os.path.exists(KEY_FILE):
+        key = Fernet.generate_key()
+        with open(KEY_FILE, "wb") as key_file:
+            key_file.write(key)
+
+    with open(KEY_FILE, "rb") as key_file:
+        return key_file.read()
+
+
+cipher = Fernet(load_or_create_key())
+
+
+def encrypt_text(text):
+    return cipher.encrypt(text.encode()).decode()
+
+
+def decrypt_text(encrypted_text):
+    try:
+        return cipher.decrypt(encrypted_text.encode()).decode()
+    except Exception:
+        return encrypted_text
 
 
 def get_db_connection():
@@ -45,33 +74,33 @@ def home():
     search_query = request.args.get("search", "")
 
     conn = get_db_connection()
-
-    if search_query:
-        notes = conn.execute(
-            """
-            SELECT *
-            FROM notes
-            WHERE title LIKE ?
-            OR content LIKE ?
-            OR tags LIKE ?
-            ORDER BY id DESC
-            """,
-            (
-                f"%{search_query}%",
-                f"%{search_query}%",
-                f"%{search_query}%"
-            )
-        ).fetchall()
-    else:
-        notes = conn.execute(
-            "SELECT * FROM notes ORDER BY id DESC"
-        ).fetchall()
-
+    stored_notes = conn.execute("SELECT * FROM notes ORDER BY id DESC").fetchall()
     conn.close()
+
+    processed_notes = []
+
+    for note in stored_notes:
+        note_dict = dict(note)
+
+        decrypted_content = decrypt_text(note["content"])
+        note_dict["content"] = decrypted_content
+        note_dict["html_content"] = Markup(markdown.markdown(decrypted_content))
+
+        if search_query:
+            search_target = (
+                note_dict["title"] + " " +
+                decrypted_content + " " +
+                (note_dict["tags"] or "")
+            ).lower()
+
+            if search_query.lower() not in search_target:
+                continue
+
+        processed_notes.append(note_dict)
 
     return render_template(
         "index.html",
-        notes=notes,
+        notes=processed_notes,
         search_query=search_query
     )
 
@@ -82,11 +111,13 @@ def add_note():
     content = request.form["content"]
     tags = request.form.get("tags", "")
 
+    encrypted_content = encrypt_text(content)
+
     conn = get_db_connection()
 
     conn.execute(
         "INSERT INTO notes (title, content, tags) VALUES (?, ?, ?)",
-        (title, content, tags)
+        (title, encrypted_content, tags)
     )
 
     conn.commit()
@@ -119,13 +150,15 @@ def edit_note(note_id):
         content = request.form["content"]
         tags = request.form.get("tags", "")
 
+        encrypted_content = encrypt_text(content)
+
         conn.execute(
             """
             UPDATE notes
             SET title = ?, content = ?, tags = ?
             WHERE id = ?
             """,
-            (title, content, tags, note_id)
+            (title, encrypted_content, tags, note_id)
         )
 
         conn.commit()
@@ -140,9 +173,12 @@ def edit_note(note_id):
 
     conn.close()
 
+    note_dict = dict(note)
+    note_dict["content"] = decrypt_text(note_dict["content"])
+
     return render_template(
         "edit.html",
-        note=note
+        note=note_dict
     )
 
 

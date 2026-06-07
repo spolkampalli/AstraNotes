@@ -99,7 +99,9 @@
         {% endif %}
         {% endif %}
 
-        <p>{{ note["content"] }}</p>
+        <div class="markdown-preview">
+            {{ note["html_content"] }}
+        </div>
 
         <a href="{{ url_for('edit_note', note_id=note['id']) }}">Edit</a>
 
