@@ -1,62 +1,115 @@
 # AstraNotes
 
-AstraNotes is a simple secure note-taking application developed for CSEN 296B: AI-Driven Software Development.
+## Overview
 
-## Project Overview
+AstraNotes is a lightweight note-taking application developed for CSEN 296B: AI-Driven Software Development.
 
-The goal of AstraNotes is to provide a lightweight note-taking system that allows users to create, edit, delete, search, and store notes securely.
+The project demonstrates how AI-assisted software development can be combined with human validation, requirements engineering, architecture design, implementation, testing, and documentation throughout the software development lifecycle.
 
-This project demonstrates the complete Software Development Life Cycle (SDLC), including requirements, planning, UML, traceability, testing, implementation, and AI-assisted development practices.
+---
 
 ## Features
 
-* Create notes
-* Edit notes
-* Delete notes
-* Search notes
-* Local storage
-* Basic note protection and privacy considerations
+* Create Notes
+* Edit Notes
+* Delete Notes
+* Search Notes
+* Tag Management
+* Markdown Formatting
+* SQLite Storage
+* Encrypted Note Content
+
+---
 
 ## Technology Stack
 
-* Python
+* Python 3
 * Flask
 * SQLite
-* HTML
-* CSS
-* GitHub
-* GitHub Copilot
+* Markdown
+* Cryptography (Fernet)
 
-## Repository Structure
+---
 
-* docs/ – SDLC artifacts and documentation
-* src/ – application source code
-* tests/ – testing notes and evidence
+## Installation
 
-## Running the Application
+Clone the repository:
 
-1. Install dependencies
+```bash
+git clone <repository-url>
+cd AstraNotes
+```
+
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Run the application
+Run the application:
 
 ```bash
-python3 src/app.py
+python src/app.py
 ```
 
-3. Open the browser at:
+Open:
 
 ```text
 http://127.0.0.1:5000
 ```
 
+---
+
+## Project Structure
+
+```text
+AstraNotes
+├── docs
+├── tests
+├── src
+│   ├── static
+│   ├── templates
+│   └── app.py
+├── requirements.txt
+└── README.md
+```
+
+---
+
 ## AI Usage
 
-AI was used to assist with requirements generation, planning artifacts, UML design, implementation guidance, and documentation. All AI-generated outputs were reviewed, refined, and validated through human judgment before inclusion in the final project.
+AI tools were used to assist with:
+
+* Requirements generation
+* Architecture brainstorming
+* Documentation support
+* UML planning
+* Implementation guidance
+
+All generated artifacts and code were reviewed, validated, and refined through human oversight before inclusion in the project.
+
+---
+
+## Security
+
+* Note content is encrypted before storage.
+* Encryption keys remain local.
+* Sensitive files are excluded using .gitignore.
+
+---
+
+## Future Enhancements
+
+* Auto-save support
+* Cloud synchronization
+* User authentication
+* Mobile application support
+* Advanced tag filtering
+
+---
 
 ## Author
 
-CSEN 296B Final Project – AstraNotes
+Sravani Polkampalli
+
+CSEN 296B Final Project
