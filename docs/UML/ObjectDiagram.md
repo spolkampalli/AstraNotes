@@ -1,18 +1,20 @@
 # AstraNotes Object Diagram
 
 ```mermaid
-classDiagram
-    object User
-    object Note1 {
-        id = 1
-        title = "CSEN Project"
-        tags = "school,project"
-    }
+flowchart LR
 
-    object Database
-    object EncryptionService
+User["User"]
 
-    User --> Note1 : creates
-    Note1 --> EncryptionService : encrypts content
-    EncryptionService --> Database : stores encrypted note
+Note["Note
+id: 1
+title: CSEN Project
+tags: school, project"]
+
+Encryption["Encryption Service"]
+
+Database["SQLite Database"]
+
+User -->|creates| Note
+Note -->|encrypts content| Encryption
+Encryption -->|stores encrypted note| Database
 ```
